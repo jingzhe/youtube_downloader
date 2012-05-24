@@ -14,11 +14,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     filedownloader.cpp \
     infoextractor.cpp \
-    youtubeie.cpp
+    youtubeie.cpp \
+    audioextractor.cpp
 
 HEADERS  += mainwindow.h \
     filedownloader.h \
     infoextractor.h \
-    youtubeie.h
+    youtubeie.h \
+    audioextractor.h
 
 FORMS    += mainwindow.ui

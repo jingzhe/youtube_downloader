@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     iTrytoClose = false;
     iDownloader = new FileDownloader(this);
+    iAudioExtractor = new AudioExtractor(this);
     ui->setupUi(this);
     ui->progressBar->setMinimum(0);
     ui->progressBar->setMaximum(100);
@@ -15,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(cancelDownload()));
     connect(iDownloader, SIGNAL(downloadProgress(int)), this, SLOT(updateProgress(int)));
     connect(iDownloader, SIGNAL(stateChanged(DownloadState)), this, SLOT(stateChanged(DownloadState)));
+    connect(ui->extractButton, SIGNAL(clicked()), this, SLOT(extractAudio()));
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeApp()));
     ui->videoIdEdit->setText("BzrI15uw92k");
 }
@@ -60,5 +62,10 @@ void MainWindow::closeApp()
     {
         close();
     }
+}
+
+void MainWindow::extractAudio()
+{
+    iAudioExtractor->extractAudio();
 }
 

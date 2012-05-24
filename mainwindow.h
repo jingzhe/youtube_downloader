@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "filedownloader.h"
+#include "audioextractor.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,10 +23,12 @@ public slots:
     void updateProgress(int value);
     void stateChanged(DownloadState state);
     void closeApp();
+    void extractAudio();
     
 private:
     Ui::MainWindow *ui;
     FileDownloader* iDownloader;
+    AudioExtractor* iAudioExtractor;
     bool iTrytoClose;
 };
 
