@@ -24,6 +24,10 @@ public slots:
     void stateChanged(DownloadState state);
     void closeApp();
     void extractAudio();
+    void infoChanged(const QString& text);
+    void clearInfoText();
+    void openSettings();
+    void extractStateChanged(int state);
     
 private:
     Ui::MainWindow *ui;

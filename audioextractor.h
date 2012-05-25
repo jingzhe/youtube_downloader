@@ -2,17 +2,22 @@
 #define AUDIOEXTRACTOR_H
 
 #include <QObject>
+#include <QSettings>
+#include <QProcess>
 
 class AudioExtractor : public QObject
 {
     Q_OBJECT
 public:
     explicit AudioExtractor(QObject *parent = 0);
-    int extractAudio();
+    int extractAudio(const QString& videoId);
     
 signals:
+    void infoChanged(const QString& info);
+    void extractStateChanged(int state);
     
 public slots:
+    void extractFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 private:
     QString probeVideo();
@@ -20,6 +25,8 @@ private:
 private:
 
     QString iVideoFile;
+    QSettings* settings;
+    QProcess extractProcess;
     
 };
 

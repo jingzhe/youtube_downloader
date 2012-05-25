@@ -3,6 +3,7 @@
 #include <QUrl>
 #include <QDir>
 #include <QNetworkCookieJar>
+#include <QVariant>
 #include "filedownloader.h"
 
 
@@ -24,18 +25,40 @@ FileDownloader::FileDownloader(QObject *parent) :
     iAvailable_formats.append("13");
     iState = EReady;
 
-    proxy.setType(QNetworkProxy::HttpProxy);
-    proxy.setHostName(tr("192.168.220.5"));
-    proxy.setPort(8080);
+    settings = new QSettings("mycompany", "youtubedl", this);
+    QString hostAddr = settings->value("proxy_host").toString();
+    if(hostAddr.isEmpty())
+    {
+        settings->setValue("proxy_host", QVariant("192.168.220.5"));
+    }
+    QString port = settings->value("proxy_port").toString();
+    if( port.isEmpty())
+    {
+        settings->setValue("proxy_port", QVariant("8080"));
+    }
     iManager = new QNetworkAccessManager(this);
-    //iManager->setProxy(proxy);
-    //iManager->setCookieJar(new QNetworkCookieJar(iManager));
     iFullInfo = "?"; //hack
 }
 
 int FileDownloader::download(const QString& uri)
 {
-    iState = EDownloading;
+    QString checkStr = settings->value("use_proxy").toString();
+    if(checkStr == "1")
+    {
+        QString hostAddr = settings->value("proxy_host").toString();
+        QString port = settings->value("proxy_port").toString();
+        proxy.setType(QNetworkProxy::HttpProxy);
+        proxy.setHostName(hostAddr);
+        proxy.setPort(port.toInt());
+        iManager->setProxy(proxy);;
+    }
+    else
+    {
+        iManager->setProxy(emptyProxy);
+    }
+
+    iState = EGettingVideoInfo;
+    iGettingVideoInfoAborted = false;
     iDownloadRequestAborted = false;
     iId = uri;
     QString fulluri = QString("http://www.youtube.com/get_video_info?&video_id=%1&el=embedded&ps=default&eurl=&gl=US&hl=en").arg(uri);
@@ -44,12 +67,23 @@ int FileDownloader::download(const QString& uri)
     connect(httpreply, SIGNAL(finished()), this, SLOT(httpFinished()));
     connect(httpreply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
     emit stateChanged(iState);
+    emit infoChanged(tr("start get info ") + uri);
 
     return 0;
 }
 
 void FileDownloader::httpFinished()
 {
+    if (iGettingVideoInfoAborted)
+    {
+        httpreply->deleteLater();
+        httpreply = 0;
+        emit downloadProgress(0);
+        iState = EReady;
+        emit stateChanged(iState);
+        emit infoChanged(tr("download canceled"));
+        return;
+    }
     QUrl url(iFullInfo);
     QByteArray bytearray = url.encodedQueryItemValue("url_encoded_fmt_stream_map");
     QString url_map = QUrl::fromPercentEncoding(bytearray);
@@ -84,7 +118,7 @@ void FileDownloader::httpFinished()
     httpreply = 0;
 
     //open the file
-    QString home = QDir::homePath();
+    QString home = settings->value("output_path").toString();
     QString outputFile = home + QDir::separator() + iId + ".flv";
     iFile = new QFile(outputFile);
     if(!iFile->open(QIODevice::WriteOnly))
@@ -110,6 +144,8 @@ void FileDownloader::httpFinished()
     connect(downloadreply, SIGNAL(readyRead()), this, SLOT(downloadReadyRead()));
     connect(downloadreply, SIGNAL(downloadProgress(qint64,qint64)),
             this, SLOT(updateDataReadProgress(qint64,qint64)));
+    emit infoChanged(tr("start download video file "));
+    iState = EDownloading;
 
 
 
@@ -137,6 +173,7 @@ void FileDownloader::downloadFinished()
         emit downloadProgress(0);
         iState = EReady;
         emit stateChanged(iState);
+        emit infoChanged(tr("download canceled"));
         return;
     }
     qDebug() << "downloadFinished" << endl;
@@ -149,11 +186,6 @@ void FileDownloader::downloadFinished()
     {
         qDebug() << "error is " << downloadreply->error() << endl;
         iFile->remove();
-        //downloadButton->setEnabled(true);
-    }
-    else
-    {
-        //downloadButton->setEnabled(true);
     }
 
     downloadreply->deleteLater();
@@ -162,6 +194,7 @@ void FileDownloader::downloadFinished()
     iFile = 0;
     iState = EReady;
     emit stateChanged(iState);
+    emit infoChanged(tr("download finished"));
 
 }
 
@@ -170,6 +203,8 @@ void FileDownloader::downloadReadyRead()
     //qDebug() << "download ready read" << endl;
     if (iFile)
         iFile->write(downloadreply->readAll());
+
+    emit infoChanged(tr("."));
 }
 
 void FileDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
@@ -181,11 +216,18 @@ void FileDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
 
 int FileDownloader::cancelDownload()
 {
-    if(iState == EDownloading)
+    if(iState == EGettingVideoInfo)
     {
-        qDebug() << "cancel download" << endl;
+        emit infoChanged(tr("cancel getting video info"));
+        iGettingVideoInfoAborted = true;
+        httpreply->abort();
+    }
+    else if(iState == EDownloading)
+    {
+        emit infoChanged(tr("cancel downloading"));
         iDownloadRequestAborted = true;
         downloadreply->abort();
+
     }
     return 0;
 }

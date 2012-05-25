@@ -111,6 +111,9 @@
       <height>231</height>
      </rect>
     </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QPushButton" name="extractButton">
     <property name="geometry">
@@ -145,14 +148,14 @@
      <x>0</x>
      <y>0</y>
      <width>555</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionClose"/>
+    <addaction name="actionSettings"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -165,9 +168,9 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionClose">
+  <action name="actionSettings">
    <property name="text">
-    <string>Close</string>
+    <string>Settings...</string>
    </property>
   </action>
  </widget>

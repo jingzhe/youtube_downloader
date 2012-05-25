@@ -1,17 +1,22 @@
-#include <QProcess>
 #include <QDebug>
 #include <QApplication>
 #include <QCursor>
+#include <QDir>
 #include "audioextractor.h"
 
 AudioExtractor::AudioExtractor(QObject *parent) :
     QObject(parent)
 {
-    iVideoFile = "/home/jingzhe/hrYnTRP_NQ8.flv";
+    settings = new QSettings("mycompany", "youtubedl", this);
+    connect(&extractProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(extractFinished(int, QProcess::ExitStatus)));
 }
 
-int AudioExtractor::extractAudio()
+int AudioExtractor::extractAudio(const QString& videoId)
 {
+    QString home = settings->value("output_path").toString();
+    iVideoFile = home + QDir::separator() + videoId + ".flv";
+
     QString acodec;
     QString probeResult = probeVideo();
     if(probeResult == "mp3")
@@ -23,20 +28,12 @@ int AudioExtractor::extractAudio()
         acodec = "libmp3lame";
     }
 
-    QString ffmpegStr = "ffmpeg -y -i /home/jingzhe/hrYnTRP_NQ8.flv -vn -acodec "
-            + acodec + " /home/jingzhe/hrYnTRP_NQ8.mp3";
-    qDebug() << ffmpegStr << endl;
+    QString ffmpegStr = "ffmpeg -y -i " + iVideoFile + " -vn -acodec "
+            + acodec + " " + home + QDir::separator() + videoId + ".mp3";
+    emit infoChanged(ffmpegStr + "...");
+    emit extractStateChanged(1);
 
-    QProcess process;
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    process.start(ffmpegStr);
-    QString all;
-    if (!process.waitForFinished(-1))
-        qDebug() << "failed:" << process.errorString();
-    else
-        qDebug() << "succed" << endl;
-
-    QApplication::restoreOverrideCursor();
+    extractProcess.start(ffmpegStr);
     return 0;
 }
 
@@ -46,6 +43,7 @@ QString AudioExtractor::probeVideo()
     QString result;
     QProcess process;
     QString probeStr = "ffprobe -show_streams " + iVideoFile;
+    emit infoChanged(probeStr);
     process.start(probeStr);
     if (!process.waitForFinished())
         qDebug() << "failed:" << process.errorString();
@@ -73,5 +71,13 @@ QString AudioExtractor::probeVideo()
     }
 
     return result;
+}
 
+void AudioExtractor::extractFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    emit extractStateChanged(0);
+    if(exitCode != 0)
+        emit infoChanged("failed to extract mp3");
+    else
+        emit infoChanged("succeeded to extract mp3");
 }

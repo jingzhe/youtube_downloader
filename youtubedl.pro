@@ -15,12 +15,15 @@ SOURCES += main.cpp\
     filedownloader.cpp \
     infoextractor.cpp \
     youtubeie.cpp \
-    audioextractor.cpp
+    audioextractor.cpp \
+    settingsdialog.cpp
 
 HEADERS  += mainwindow.h \
     filedownloader.h \
     infoextractor.h \
     youtubeie.h \
-    audioextractor.h
+    audioextractor.h \
+    settingsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    settingsdialog.ui

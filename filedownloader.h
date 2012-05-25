@@ -7,10 +7,12 @@
 #include <QStringList>
 #include <QFile>
 #include <QNetworkProxy>
+#include <QSettings>
 
 enum DownloadState
 {
     EReady,
+    EGettingVideoInfo,
     EDownloading
 };
 
@@ -27,6 +29,7 @@ public:
 signals:
     void downloadProgress(int progress);
     void stateChanged(DownloadState state);
+    void infoChanged(const QString& info);
     
 public slots:
 
@@ -46,9 +49,12 @@ private:
     QString iFinalAddr;
     QFile* iFile;
     QString iId;
+    bool iGettingVideoInfoAborted;
     bool iDownloadRequestAborted;
     QNetworkProxy proxy;
+    QNetworkProxy emptyProxy;
     DownloadState iState;
+    QSettings* settings;
     
 };
 

@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "settingsdialog.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -18,6 +19,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(iDownloader, SIGNAL(stateChanged(DownloadState)), this, SLOT(stateChanged(DownloadState)));
     connect(ui->extractButton, SIGNAL(clicked()), this, SLOT(extractAudio()));
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeApp()));
+    connect(iDownloader, SIGNAL(infoChanged(const QString&)), this, SLOT(infoChanged(const QString&)));
+    connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clearInfoText()));
+    connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(openSettings()));
+    connect(iAudioExtractor, SIGNAL(infoChanged(const QString&)), this, SLOT(infoChanged(const QString&)));
+    connect(iAudioExtractor, SIGNAL(extractStateChanged(int)), this, SLOT(extractStateChanged(int)));
     ui->videoIdEdit->setText("BzrI15uw92k");
 }
 
@@ -66,6 +72,30 @@ void MainWindow::closeApp()
 
 void MainWindow::extractAudio()
 {
-    iAudioExtractor->extractAudio();
+    iAudioExtractor->extractAudio(ui->videoIdEdit->text());
+}
+
+void MainWindow::infoChanged(const QString& text)
+{
+    if(text == ".")
+        ui->infoEdit->insertPlainText(text);
+    else
+        ui->infoEdit->append(text);
+}
+
+void MainWindow::clearInfoText()
+{
+    ui->infoEdit->clear();
+}
+
+void MainWindow::openSettings()
+{
+    SettingsDialog dlg(this);
+    dlg.exec();
+}
+
+void MainWindow::extractStateChanged(int state)
+{
+    this->setEnabled(state == 0);
 }
 
