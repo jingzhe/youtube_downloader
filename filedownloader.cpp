@@ -123,16 +123,6 @@ void FileDownloader::httpFinished()
     newArray.append(url_map);
     QString new_map = QUrl::fromPercentEncoding(newArray);
     QStringList strlist = new_map.split(",", QString::SkipEmptyParts);
-    if(strlist.count() == 0)
-    {
-        httpreply->deleteLater();
-        httpreply = 0;
-        emit downloadProgress(0);
-        iState = EReady;
-        emit stateChanged(iState);
-        emit infoChanged(tr("download failed"));
-        return;
-    }
     QString item;
     int index = iAvailable_formats.count() - 1;
     int urlIndex = -1;
@@ -147,6 +137,16 @@ void FileDownloader::httpFinished()
             index = myIndex;
             urlIndex++;
         }
+    }
+    if(urlIndex == -1)
+    {
+        httpreply->deleteLater();
+        httpreply = 0;
+        emit downloadProgress(0);
+        iState = EReady;
+        emit stateChanged(iState);
+        emit infoChanged(tr("download failed"));
+        return;
     }
     QString correct = strlist.at(urlIndex);;
     QUrl correctUrl("?" + correct);
