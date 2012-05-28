@@ -6,6 +6,7 @@
 #include <QVariant>
 #include "filedownloader.h"
 
+const QString VIDEO_INFO_URI = QString("http://www.youtube.com/get_video_info?&video_id=%1&el=%2&ps=default&eurl=&gl=US&hl=en");
 
 FileDownloader::FileDownloader(QObject *parent) :
     QObject(parent)
@@ -38,6 +39,7 @@ FileDownloader::FileDownloader(QObject *parent) :
     }
     iManager = new QNetworkAccessManager(this);
     iFullInfo = "?"; //hack
+    el_type = "embedded";
 }
 
 int FileDownloader::download(const QString& uri)
@@ -61,13 +63,14 @@ int FileDownloader::download(const QString& uri)
     iGettingVideoInfoAborted = false;
     iDownloadRequestAborted = false;
     iId = uri;
-    QString fulluri = QString("http://www.youtube.com/get_video_info?&video_id=%1&el=embedded&ps=default&eurl=&gl=US&hl=en").arg(uri);
+    iFullInfo = "?"; //hack
+    QString fulluri = VIDEO_INFO_URI.arg(uri).arg(el_type);
     QNetworkRequest request(fulluri);
     httpreply = iManager->get(request);
     connect(httpreply, SIGNAL(finished()), this, SLOT(httpFinished()));
     connect(httpreply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
     emit stateChanged(iState);
-    emit infoChanged(tr("start get info ") + uri);
+    emit infoChanged(tr("start getting info ") + uri);
 
     return 0;
 }
@@ -84,6 +87,35 @@ void FileDownloader::httpFinished()
         emit infoChanged(tr("download canceled"));
         return;
     }
+    if(iFullInfo.indexOf("token") == -1)
+    {
+        httpreply->deleteLater();
+        httpreply = 0;
+        emit downloadProgress(0);
+        iState = EReady;
+        emit stateChanged(iState);
+
+        if(el_type == "embedded")
+            el_type = "detailpage";
+        else if(el_type == "detailpage")
+            el_type = "vevo";
+        else
+        {
+            emit infoChanged(tr("download failed"));
+            return;
+        }
+        QString fulluri = VIDEO_INFO_URI.arg(iId).arg(el_type);
+        QNetworkRequest request(fulluri);
+        httpreply = iManager->get(request);
+        connect(httpreply, SIGNAL(finished()), this, SLOT(httpFinished()));
+        connect(httpreply, SIGNAL(readyRead()), this, SLOT(httpReadyRead()));
+        iState = EGettingVideoInfo;
+        iGettingVideoInfoAborted = false;
+        iDownloadRequestAborted = false;
+        emit stateChanged(iState);
+        emit infoChanged(tr("start getting info ") + iId);
+        return;
+    }
     QUrl url(iFullInfo);
     QByteArray bytearray = url.encodedQueryItemValue("url_encoded_fmt_stream_map");
     QString url_map = QUrl::fromPercentEncoding(bytearray);
@@ -91,6 +123,16 @@ void FileDownloader::httpFinished()
     newArray.append(url_map);
     QString new_map = QUrl::fromPercentEncoding(newArray);
     QStringList strlist = new_map.split(",", QString::SkipEmptyParts);
+    if(strlist.count() == 0)
+    {
+        httpreply->deleteLater();
+        httpreply = 0;
+        emit downloadProgress(0);
+        iState = EReady;
+        emit stateChanged(iState);
+        emit infoChanged(tr("download failed"));
+        return;
+    }
     QString item;
     int index = iAvailable_formats.count() - 1;
     int urlIndex = -1;
@@ -112,7 +154,7 @@ void FileDownloader::httpFinished()
     QString correctAddress = QUrl::fromPercentEncoding(correctArray);
     QByteArray finalArray;
     finalArray.append(correctAddress);
-    iFinalAddr = QUrl::fromPercentEncoding(finalArray);
+    QString finalAddr = QUrl::fromPercentEncoding(finalArray);
 
     httpreply->deleteLater();
     httpreply = 0;
@@ -130,14 +172,12 @@ void FileDownloader::httpFinished()
 
 
     qDebug() << "download started" << endl;
-    //qDebug() << "iFinalAddr: " << iFinalAddr << endl;
     QByteArray temp1;
-    temp1.append(iFinalAddr);
-    iFinalAddr = QUrl::fromPercentEncoding(temp1);
-    //qDebug() << "newAddr: " << iFinalAddr << endl;
+    temp1.append(finalAddr);
+    finalAddr = QUrl::fromPercentEncoding(temp1);
 
     //start to download
-    QUrl downloadUrl(iFinalAddr);
+    QUrl downloadUrl(finalAddr);
     QNetworkRequest request(downloadUrl);
     downloadreply = iManager->get(request);
     connect(downloadreply, SIGNAL(finished()), this, SLOT(downloadFinished()));

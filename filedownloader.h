@@ -46,7 +46,6 @@ private:
     QNetworkReply *httpreply;
     QNetworkReply *downloadreply;
     QString iFullInfo;
-    QString iFinalAddr;
     QFile* iFile;
     QString iId;
     bool iGettingVideoInfoAborted;
@@ -55,6 +54,7 @@ private:
     QNetworkProxy emptyProxy;
     DownloadState iState;
     QSettings* settings;
+    QString el_type; //embedded, detailpage, vevo
     
 };
 

@@ -1,3 +1,4 @@
+#include <QScrollBar>
 #include "mainwindow.h"
 #include "settingsdialog.h"
 #include "ui_mainwindow.h"
@@ -81,6 +82,9 @@ void MainWindow::infoChanged(const QString& text)
         ui->infoEdit->insertPlainText(text);
     else
         ui->infoEdit->append(text);
+
+    QScrollBar *sb = ui->infoEdit->verticalScrollBar();
+    sb->setValue(sb->maximum());
 }
 
 void MainWindow::clearInfoText()
