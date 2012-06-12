@@ -21,6 +21,8 @@ class FileDownloader : public QObject
     Q_OBJECT
 public:
     explicit FileDownloader(QObject *parent = 0);
+    ~FileDownloader();
+
 
     int download(const QString& uri);
     int cancelDownload();

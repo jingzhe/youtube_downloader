@@ -81,3 +81,46 @@ void AudioExtractor::extractFinished(int exitCode, QProcess::ExitStatus exitStat
     else
         emit infoChanged("succeeded to extract mp3");
 }
+
+void AudioExtractor::codecInfo(const QString& videoId)
+{
+    QString home = settings->value("output_path").toString();
+    QString videoFile = home + QDir::separator() + videoId + ".flv";
+
+    QString codecStr = "ffmpeg -i " + videoFile;
+    connect(&codecProcess, SIGNAL(readyReadStandardError()), this, SLOT(showCodec()));
+    codecProcess.start(codecStr);
+}
+
+void AudioExtractor::showCodec()
+{
+    QString result = codecProcess.readAllStandardError();
+    int pos1 = result.indexOf("Metadata:");
+    int pos2 = result.indexOf("At least");
+    QString finalResult = result.mid(pos1, pos2 - pos1);
+    emit infoChanged(finalResult);
+}
+
+void AudioExtractor::encodeX264(const QString& videoId)
+{
+    QString home = settings->value("output_path").toString();
+    QString videoFile = home + QDir::separator() + videoId + ".flv";
+    QString outputFile = home + QDir::separator() + videoId + ".mp4";
+    connect(&encodeProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(encodeFinished(int, QProcess::ExitStatus)));
+
+    QString encodecStr = "ffmpeg -i " + videoFile + " -vcodec libx264 " + outputFile;
+    encodeProcess.start(encodecStr);
+    emit infoChanged(encodecStr);
+    emit extractStateChanged(1);
+
+}
+
+void AudioExtractor::encodeFinished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    emit encodeStateChanged(0);
+    if(exitCode != 0)
+        emit infoChanged("failed to encode mp4");
+    else
+        emit infoChanged("succeeded to encode mp4");
+}

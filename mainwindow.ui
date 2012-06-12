@@ -81,8 +81,8 @@
      <rect>
       <x>450</x>
       <y>380</y>
-      <width>81</width>
-      <height>31</height>
+      <width>85</width>
+      <height>27</height>
      </rect>
     </property>
     <property name="text">
@@ -131,14 +131,40 @@
    <widget class="QPushButton" name="clearButton">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>350</x>
       <y>380</y>
-      <width>97</width>
+      <width>85</width>
       <height>27</height>
      </rect>
     </property>
     <property name="text">
      <string>Clear</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="codecButton">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>380</y>
+      <width>85</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Codec</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="encodeButton">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>380</y>
+      <width>109</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Encode(x264)</string>
     </property>
    </widget>
   </widget>
@@ -148,7 +174,7 @@
      <x>0</x>
      <y>0</y>
      <width>555</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

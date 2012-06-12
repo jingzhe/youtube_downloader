@@ -28,6 +28,8 @@ public slots:
     void clearInfoText();
     void openSettings();
     void extractStateChanged(int state);
+    void codecInfo();
+    void encodeX264();
     
 private:
     Ui::MainWindow *ui;

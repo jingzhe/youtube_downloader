@@ -19,12 +19,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(iDownloader, SIGNAL(downloadProgress(int)), this, SLOT(updateProgress(int)));
     connect(iDownloader, SIGNAL(stateChanged(DownloadState)), this, SLOT(stateChanged(DownloadState)));
     connect(ui->extractButton, SIGNAL(clicked()), this, SLOT(extractAudio()));
+    connect(ui->codecButton, SIGNAL(clicked()), this, SLOT(codecInfo()));
+    connect(ui->encodeButton, SIGNAL(clicked()), this, SLOT(encodeX264()));
     connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeApp()));
     connect(iDownloader, SIGNAL(infoChanged(const QString&)), this, SLOT(infoChanged(const QString&)));
     connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clearInfoText()));
     connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(openSettings()));
     connect(iAudioExtractor, SIGNAL(infoChanged(const QString&)), this, SLOT(infoChanged(const QString&)));
     connect(iAudioExtractor, SIGNAL(extractStateChanged(int)), this, SLOT(extractStateChanged(int)));
+    connect(iAudioExtractor, SIGNAL(encodeStateChanged(int)), this, SLOT(extractStateChanged(int)));
     ui->videoIdEdit->setText("BzrI15uw92k");
 }
 
@@ -103,3 +106,12 @@ void MainWindow::extractStateChanged(int state)
     this->setEnabled(state == 0);
 }
 
+void MainWindow::codecInfo()
+{
+    iAudioExtractor->codecInfo(ui->videoIdEdit->text());
+}
+
+void MainWindow::encodeX264()
+{
+    iAudioExtractor->encodeX264(ui->videoIdEdit->text());
+}

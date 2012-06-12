@@ -42,6 +42,13 @@ FileDownloader::FileDownloader(QObject *parent) :
     el_type = "embedded";
 }
 
+FileDownloader::~FileDownloader()
+{
+    delete iFile;
+    delete httpreply;
+    delete downloadreply;
+}
+
 int FileDownloader::download(const QString& uri)
 {
     QString checkStr = settings->value("use_proxy").toString();
@@ -175,20 +182,30 @@ void FileDownloader::httpFinished()
     QByteArray temp1;
     temp1.append(finalAddr);
     finalAddr = QUrl::fromPercentEncoding(temp1);
+    qDebug() << finalAddr << endl;
 
     //start to download
     QUrl downloadUrl(finalAddr);
     QNetworkRequest request(downloadUrl);
     downloadreply = iManager->get(request);
-    connect(downloadreply, SIGNAL(finished()), this, SLOT(downloadFinished()));
-    connect(downloadreply, SIGNAL(readyRead()), this, SLOT(downloadReadyRead()));
-    connect(downloadreply, SIGNAL(downloadProgress(qint64,qint64)),
-            this, SLOT(updateDataReadProgress(qint64,qint64)));
-    emit infoChanged(tr("start download video file "));
-    iState = EDownloading;
-
-
-
+    if(downloadreply)
+    {
+        connect(downloadreply, SIGNAL(finished()), this, SLOT(downloadFinished()));
+        connect(downloadreply, SIGNAL(readyRead()), this, SLOT(downloadReadyRead()));
+        connect(downloadreply, SIGNAL(downloadProgress(qint64,qint64)),
+                this, SLOT(updateDataReadProgress(qint64,qint64)));
+        emit infoChanged(tr("start download video file "));
+        iState = EDownloading;
+    }
+    else
+    {
+        delete iFile;
+        iFile = NULL;
+        emit downloadProgress(0);
+        iState = EReady;
+        emit stateChanged(iState);
+        emit infoChanged(tr("download failed"));
+    }
 }
 
 void FileDownloader::httpReadyRead()

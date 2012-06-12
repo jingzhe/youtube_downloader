@@ -1108,26 +1108,23 @@ class YoutubeIE(InfoExtractor):
 
         # Set language
         request = urllib2.Request(self._LANG_URL)
-        '''
         try:
             self.report_lang()
             urllib2.urlopen(request).read()
         except (urllib2.URLError, httplib.HTTPException, socket.error), err:
             self._downloader.to_stderr(u'WARNING: unable to set language: %s' % str(err))
             return
-        '''
-
+'''
         try:
             self.report_lang()
             proxy_support = urllib2.ProxyHandler({'http': 'http://192.168.220.5:8080'})
             opener = urllib2.build_opener(proxy_support, urllib2.HTTPHandler)
             urllib2.install_opener(opener)
             urllib2.urlopen(request).read()
-            print 'after set language'
         except (urllib2.URLError, httplib.HTTPException, socket.error), err:
             self._downloader.to_stderr(u'WARNING: unable to set language: %s' % str(err))
             return
-
+'''
 
     def _real_extract(self, url):
 
