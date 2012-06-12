@@ -27,6 +27,7 @@ public slots:
     void infoChanged(const QString& text);
     void clearInfoText();
     void openSettings();
+    void openAbout();
     void extractStateChanged(int state);
     void codecInfo();
     void encodeX264();

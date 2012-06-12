@@ -1,4 +1,5 @@
 #include <QScrollBar>
+#include <QMessageBox>
 #include "mainwindow.h"
 #include "settingsdialog.h"
 #include "ui_mainwindow.h"
@@ -25,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(iDownloader, SIGNAL(infoChanged(const QString&)), this, SLOT(infoChanged(const QString&)));
     connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clearInfoText()));
     connect(ui->actionSettings, SIGNAL(triggered()), this, SLOT(openSettings()));
+    connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(openAbout()));
     connect(iAudioExtractor, SIGNAL(infoChanged(const QString&)), this, SLOT(infoChanged(const QString&)));
     connect(iAudioExtractor, SIGNAL(extractStateChanged(int)), this, SLOT(extractStateChanged(int)));
     connect(iAudioExtractor, SIGNAL(encodeStateChanged(int)), this, SLOT(extractStateChanged(int)));
@@ -114,4 +116,11 @@ void MainWindow::codecInfo()
 void MainWindow::encodeX264()
 {
     iAudioExtractor->encodeX264(ui->videoIdEdit->text());
+}
+
+void MainWindow::openAbout()
+{
+    QMessageBox msgBox;
+    msgBox.setText("Author: Jingzhe Yu\nEmail: jingzhe.yu@gmail.com\n\nExtract mp3 and video encode need ffmpeg.\n\n");
+    msgBox.exec();
 }

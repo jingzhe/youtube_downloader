@@ -182,7 +182,6 @@ void FileDownloader::httpFinished()
     QByteArray temp1;
     temp1.append(finalAddr);
     finalAddr = QUrl::fromPercentEncoding(temp1);
-    qDebug() << finalAddr << endl;
 
     //start to download
     QUrl downloadUrl(finalAddr);
