@@ -6,8 +6,9 @@ Rectangle {
     width: 100
     height: 40
     radius: 5
-    color: mouse.pressed ? "gray" : "lightgray"
+    color: mouse.pressed && state == 0 ? "gray" : "lightgray"
     property alias text: buttonLabel.text
+    property int state: 0
     signal clicked
 
     Text {

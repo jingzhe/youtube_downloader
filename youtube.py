@@ -15,6 +15,7 @@ __authors__  = (
     'Kevin Ngo',
     'Ori Avtalion',
     'shizeeg',
+    'jingzhe',
     )
 
 __license__ = 'Public Domain'

@@ -9,6 +9,7 @@ Rectangle {
     border.width: 2
     signal clicked
     property alias text: inputText.text
+    property bool myEnabled: true
     signal returned
 
     TextInput {
@@ -17,7 +18,7 @@ Rectangle {
         width: parent.width - 16
         font.pixelSize: parent.height * .5
         focus: true
-        maximumLength: 10
+        readOnly: !myEnabled
         Keys.onReturnPressed: lineInput.returned()
     }
 
