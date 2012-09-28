@@ -15,15 +15,14 @@ FileDownloader::FileDownloader(QObject *parent) :
     iAvailable_formats.append("37");
     iAvailable_formats.append("22");
     iAvailable_formats.append("45");
-    iAvailable_formats.append("35");
+    //iAvailable_formats.append("35");
     iAvailable_formats.append("44");
-    iAvailable_formats.append("34");
+    //iAvailable_formats.append("34");
     iAvailable_formats.append("18");
     iAvailable_formats.append("43");
-    iAvailable_formats.append("6");
-    iAvailable_formats.append("5");
+    //iAvailable_formats.append("5");
+    iAvailable_formats.append("36");
     iAvailable_formats.append("17");
-    iAvailable_formats.append("13");
     iState = EReady;
 
     settings = new QSettings("mycompany", "youtubedl", this);
@@ -196,7 +195,7 @@ void FileDownloader::httpFinished()
 
     //open the file
     QString home = settings->value("output_path").toString();
-    QString outputFile = home + QDir::separator() + iId + ".flv";
+    QString outputFile = home + QDir::separator() + iId + ".mp4";
     iFile = new QFile(outputFile);
     if(!iFile->open(QIODevice::WriteOnly))
     {

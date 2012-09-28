@@ -15,7 +15,7 @@ AudioExtractor::AudioExtractor(QObject *parent) :
 int AudioExtractor::extractAudio(const QString& videoId)
 {
     QString home = settings->value("output_path").toString();
-    iVideoFile = home + QDir::separator() + videoId + ".flv";
+    iVideoFile = home + QDir::separator() + videoId + ".mp4";
 
     QString acodec;
     QString probeResult = probeVideo();
@@ -85,7 +85,7 @@ void AudioExtractor::extractFinished(int exitCode, QProcess::ExitStatus exitStat
 void AudioExtractor::codecInfo(const QString& videoId)
 {
     QString home = settings->value("output_path").toString();
-    QString videoFile = home + QDir::separator() + videoId + ".flv";
+    QString videoFile = home + QDir::separator() + videoId + ".mp4";
 
     QString codecStr = "ffmpeg -i " + videoFile;
     connect(&codecProcess, SIGNAL(readyReadStandardError()), this, SLOT(showCodec()));
@@ -104,8 +104,8 @@ void AudioExtractor::showCodec()
 void AudioExtractor::encodeX264(const QString& videoId)
 {
     QString home = settings->value("output_path").toString();
-    QString videoFile = home + QDir::separator() + videoId + ".flv";
-    QString outputFile = home + QDir::separator() + videoId + ".mp4";
+    QString videoFile = home + QDir::separator() + videoId + ".mp4";
+    QString outputFile = home + QDir::separator() + videoId + "_new.mp4";
     connect(&encodeProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(encodeFinished(int, QProcess::ExitStatus)));
 
