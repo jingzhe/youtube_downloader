@@ -192,7 +192,7 @@ void FileDownloader::httpFinished()
         QByteArray tagArray = itemUrl.encodedQueryItemValue("itag");
         QString tagstr = QString(tagArray);
         int myIndex = iAvailable_formats.indexOf(tagstr);
-        if(myIndex <= index)
+        if(myIndex != -1 && myIndex <= index)
         {
             index = myIndex;
             urlIndex++;
@@ -217,6 +217,8 @@ void FileDownloader::httpFinished()
     QByteArray finalArray;
     finalArray.append(correctAddress);
     QString finalAddr = QUrl::fromPercentEncoding(finalArray);
+    QByteArray sigArray = correctUrl.encodedQueryItemValue("sig");
+    QString signature = QUrl::fromPercentEncoding(sigArray);
 
     httpreply->deleteLater();
     httpreply = 0;
@@ -240,7 +242,7 @@ void FileDownloader::httpFinished()
     qDebug() << "download started" << endl;
     QByteArray temp1;
     temp1.append(finalAddr);
-    finalAddr = QUrl::fromPercentEncoding(temp1);
+    finalAddr = QUrl::fromPercentEncoding(temp1) + "&signature=" + signature;;
 
     //start to download
     QUrl downloadUrl(finalAddr);

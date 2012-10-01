@@ -15,14 +15,16 @@ FileDownloader::FileDownloader(QObject *parent) :
     iAvailable_formats.append("37");
     iAvailable_formats.append("22");
     iAvailable_formats.append("45");
-    //iAvailable_formats.append("35");
+    iAvailable_formats.append("35");
     iAvailable_formats.append("44");
-    //iAvailable_formats.append("34");
+    iAvailable_formats.append("34");
     iAvailable_formats.append("18");
     iAvailable_formats.append("43");
-    //iAvailable_formats.append("5");
+    iAvailable_formats.append("6");
+    iAvailable_formats.append("5");
     iAvailable_formats.append("36");
     iAvailable_formats.append("17");
+    iAvailable_formats.append("13");
     iState = EReady;
 
     settings = new QSettings("mycompany", "youtubedl", this);
@@ -166,7 +168,7 @@ void FileDownloader::httpFinished()
         QByteArray tagArray = itemUrl.encodedQueryItemValue("itag");
         QString tagstr = QString(tagArray);
         int myIndex = iAvailable_formats.indexOf(tagstr);
-        if(myIndex <= index)
+        if(myIndex != -1 && myIndex <= index)
         {
             index = myIndex;
             urlIndex++;
@@ -182,13 +184,15 @@ void FileDownloader::httpFinished()
         emit infoChanged(tr("download failed"));
         return;
     }
-    QString correct = strlist.at(urlIndex);;
+    QString correct = strlist.at(urlIndex);
     QUrl correctUrl("?" + correct);
     QByteArray correctArray = correctUrl.encodedQueryItemValue("url");
     QString correctAddress = QUrl::fromPercentEncoding(correctArray);
     QByteArray finalArray;
     finalArray.append(correctAddress);
     QString finalAddr = QUrl::fromPercentEncoding(finalArray);
+    QByteArray sigArray = correctUrl.encodedQueryItemValue("sig");
+    QString signature = QUrl::fromPercentEncoding(sigArray);
 
     httpreply->deleteLater();
     httpreply = 0;
@@ -211,7 +215,7 @@ void FileDownloader::httpFinished()
     qDebug() << "download started" << endl;
     QByteArray temp1;
     temp1.append(finalAddr);
-    finalAddr = QUrl::fromPercentEncoding(temp1);
+    finalAddr = QUrl::fromPercentEncoding(temp1) + "&signature=" + signature;
 
     //start to download
     QUrl downloadUrl(finalAddr);
@@ -296,7 +300,6 @@ void FileDownloader::downloadReadyRead()
 
 void FileDownloader::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
 {
-    //qDebug() << "updateDataReadProgress bytesread" << bytesRead << "totalBytes:" << totalBytes << endl;
     if(totalBytes > 0)
     {
         int value = bytesRead * 100 / totalBytes;
