@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(iAudioExtractor, SIGNAL(infoChanged(const QString&)), this, SLOT(infoChanged(const QString&)));
     connect(iAudioExtractor, SIGNAL(extractStateChanged(int)), this, SLOT(extractStateChanged(int)));
     connect(iAudioExtractor, SIGNAL(encodeStateChanged(int)), this, SLOT(extractStateChanged(int)));
-    ui->videoIdEdit->setText("BzrI15uw92k");
+    ui->videoIdEdit->setText("nVjsGKrE6E8");
 }
 
 MainWindow::~MainWindow()

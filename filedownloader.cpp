@@ -1,6 +1,7 @@
 #include <QNetworkRequest>
 #include <QDebug>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QDir>
 #include <QNetworkCookieJar>
 #include <QVariant>
@@ -153,11 +154,15 @@ void FileDownloader::httpFinished()
         return;
     }
     QUrl url(iFullInfo);
+    /*
     QByteArray bytearray = url.encodedQueryItemValue("url_encoded_fmt_stream_map");
     QString url_map = QUrl::fromPercentEncoding(bytearray);
     QByteArray newArray;
     newArray.append(url_map);
     QString new_map = QUrl::fromPercentEncoding(newArray);
+    */
+    QUrlQuery query(url);
+    QString new_map = query.queryItemValue("url_encoded_fmt_stream_map", QUrl::FullyDecoded);
     QStringList strlist = new_map.split(",", QString::SkipEmptyParts);
     QString item;
     int index = iAvailable_formats.count() - 1;
@@ -165,8 +170,12 @@ void FileDownloader::httpFinished()
     foreach(item, strlist)
     {
         QUrl itemUrl("?"+item);
+        /*
         QByteArray tagArray = itemUrl.encodedQueryItemValue("itag");
         QString tagstr = QString(tagArray);
+        */
+        QUrlQuery itemQuery(itemUrl);
+        QString tagstr = itemQuery.queryItemValue("itag");
         int myIndex = iAvailable_formats.indexOf(tagstr);
         if(myIndex != -1 && myIndex <= index)
         {
@@ -186,6 +195,8 @@ void FileDownloader::httpFinished()
     }
     QString correct = strlist.at(urlIndex);
     QUrl correctUrl("?" + correct);
+
+    /*
     QByteArray correctArray = correctUrl.encodedQueryItemValue("url");
     QString correctAddress = QUrl::fromPercentEncoding(correctArray);
     QByteArray finalArray;
@@ -193,6 +204,13 @@ void FileDownloader::httpFinished()
     QString finalAddr = QUrl::fromPercentEncoding(finalArray);
     QByteArray sigArray = correctUrl.encodedQueryItemValue("sig");
     QString signature = QUrl::fromPercentEncoding(sigArray);
+    */
+    QUrlQuery correctQuery(correctUrl);
+    QString finalAddr = correctQuery.queryItemValue("url");
+    //qDebug() << "final addr:" << finalAddr << endl;
+    QString signature = correctQuery.queryItemValue("sig");
+
+
 
     httpreply->deleteLater();
     httpreply = 0;
